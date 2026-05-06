@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.youssefmabrouk.heritagequest.data.CategoryId
 import com.youssefmabrouk.heritagequest.data.QuizCategory
@@ -71,6 +72,7 @@ private fun CategoryCard(
     InfoCard(
         modifier = modifier
             .fillMaxWidth()
+            .testTag("category_${category.id.name}")
             .alpha(if (category.isPlayable) 1f else 0.62f)
             .clickable(enabled = category.isPlayable) { onCategorySelected(category.id) }
     ) {
