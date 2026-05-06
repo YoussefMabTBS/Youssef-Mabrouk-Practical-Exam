@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.YoussefMabrouk" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">#F8F3EA</item>
+        <item name="android:statusBarColor">#F8F3EA</item>
+    </style>
+</resources>
