@@ -2,6 +2,11 @@ package com.youssefmabrouk.heritagequest.ui.screens
 
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -18,8 +23,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -166,7 +170,8 @@ private fun AnswerButton(
     val question = state.currentQuestion
     val isCorrectAnswer = question?.answer == option
     val isSelectedWrong = state.selectedOption == option && result?.isCorrect == false
-    val hapticFeedback = LocalHapticFeedback.current
+    val context = LocalContext.current
+    val vibrator = remember(context) { context.findVibrator() }
     val toneGenerator = remember {
         runCatching {
             ToneGenerator(AudioManager.STREAM_MUSIC, 80)
@@ -203,12 +208,12 @@ private fun AnswerButton(
                 toneGenerator?.startTone(tone, 180)
             }
             if (state.hapticsEnabled) {
-                val feedbackType = if (isCorrectAnswer) {
-                    HapticFeedbackType.TextHandleMove
+                val duration = if (isCorrectAnswer) {
+                    45L
                 } else {
-                    HapticFeedbackType.LongPress
+                    140L
                 }
-                hapticFeedback.performHapticFeedback(feedbackType)
+                vibrator?.vibrateOnce(duration)
             }
             onAnswerSelected(option)
         },
@@ -225,5 +230,26 @@ private fun AnswerButton(
         )
     ) {
         Text(text = text, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+private fun Context.findVibrator(): Vibrator? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val manager = getSystemService(VibratorManager::class.java)
+        manager?.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+}
+
+private fun Vibrator.vibrateOnce(durationMs: Long) {
+    if (!hasVibrator()) return
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrate(VibrationEffect.createOneShot(durationMs, VibrationEffect.DEFAULT_AMPLITUDE))
+    } else {
+        @Suppress("DEPRECATION")
+        vibrate(durationMs)
     }
 }
